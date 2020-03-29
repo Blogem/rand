@@ -1,5 +1,6 @@
 
-"""#SIR model
+"""
+SIR model
 https://www.youtube.com/watch?v=k6nLfCbAzgo
 https://nl.wikipedia.org/wiki/Ziektecompartimentenmodel
 
@@ -125,7 +126,6 @@ trans_r_m = 1.15
 trans_r_h = 1.30
 recov_r = recov_r()
 
-
 # t_max = number of time points to calculate for (e.g. days)
 t_max = 20
 
@@ -141,12 +141,11 @@ x,y_m = sir_model(S,I,R,trans_r_m,recov_r,t_max)
 x,y_h = sir_model(S,I,R,trans_r_h,recov_r,t_max)
 
 # turn x into date
-start_date = date(2020,2,20) #datetime.datetime('2020','02','20')
+start_date = date(2020,2,20)
 dates = []
 for i in x:
     date = start_date + timedelta(i)
     dates.append(date)
-
 
 # plot x and y
 lmh = plt.figure(1)
@@ -174,6 +173,4 @@ plt.show()
 print('r_0: {}'.format(brn(trans_r,recov_r))) # about 3.5 IRL?
 
 # todo:
-
-# data ontsluiten om trans_r te berekenen:
-# https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/
+# trans_r en recov_r berekenen

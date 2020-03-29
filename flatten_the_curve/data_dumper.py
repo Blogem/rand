@@ -102,7 +102,7 @@ create_q = '''CREATE TABLE IF NOT EXISTS covid
 c,conn = create_db_and_table(host,user,passwd,db,create_q=create_q)
 
 # read all CSVs to db
-dir = 'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/'
+dir = 'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
 cnt = read_covid(dir)
 print('Inserted {} files'.format(cnt))
 

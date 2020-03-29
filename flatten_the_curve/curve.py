@@ -54,7 +54,7 @@ def recov_r():
     return 0.23
 
 def rhs(s,v,trans_r,recov_r):
-    """SIR model with trans_r and recov_r
+    """RHS equations for SIR model with trans_r and recov_r
     
     Solves these three ordinary differential equations:
     S' = -trans_r*S*I # -(S=>I)
@@ -70,29 +70,21 @@ def rhs(s,v,trans_r,recov_r):
 def sir_model(S,I,R,trans_r,recov_r,t_max,t_num=None):
     """Calculates S(uceptible), I(nfected) and R(ecovered) for 0 to t_max.
     
-    Parameters:
+    Args:
 
-        S: float
-            initial suceptible
-        I: float
-            initial infected
-        R: float
-            initial recovered
-        trans_r: float
-            transmission rate, see trans_r()
-        recov_r: float
-            recovery rate, see recov_r()
-        t_max: float
-            time point to calculate to
-        t_num: float
-            number of time points
+        S (float): initial suceptible
+        I (float): initial infected
+        R (float): initial recovered
+        trans_r (float): transmission rate, see trans_r()
+        recov_r (float): recovery rate, see recov_r()
+        t_max (float): time point to calculate to
+        t_num (float): number of time points
 
     Returns:
 
-        t: list
-            list of time points
-        y: list
-            list of values of the solution at t
+        x (list): list of time points
+        y (list): list of values of the solution for S, I and R at t
+
 
     """
 
@@ -102,28 +94,50 @@ def sir_model(S,I,R,trans_r,recov_r,t_max,t_num=None):
     t = np.linspace(0,t_max,t_num)
     r = solve_ivp(rhs,(0,t_max),[S,I,R],method='RK45',t_eval=t,args=(trans_r,recov_r))
 
-
-    t = r.t.tolist()
+    x = r.t.tolist()
     y = r.y.tolist()
-    return t,y
+
+    return x,y
+
+def brn(trans_r,recov_r):
+    """Calculates basic reproduction number (R0): transmission rate / recovery rate
+    
+    Args:
+
+        trans_r (float): transmission rate, see trans_r()
+        recov_r (float): recovery rate, see recov_r()
+
+    Returns:
+
+        float: the basic reproduction number
+
+    """
+    return trans_r/recov_r
 
 
 
-
+# calculate the transmission rate and recovery rate
 trans_r = trans_r()
 recov_r = recov_r()
 
+
+# t_max = number of time points to calculate for (e.g. days)
 t_max = 20
+
+# initial values for S,I,R
 S = 0.98
 I = 0.02
 R = 0
 
-t,y = sir_model(S,I,R,trans_r,recov_r,t_max,100)
+# calculate x and y
+x,y = sir_model(S,I,R,trans_r,recov_r,t_max,100)
 
-print(y)
-
-plt.plot(t,y[0],label='S')
-plt.plot(t,y[1],label='I')
-plt.plot(t,y[2],label='R')
+# plot x and y
+plt.plot(x,y[0],label='S')
+plt.plot(x,y[1],label='I')
+plt.plot(x,y[2],label='R')
 plt.legend(loc='upper right')
 plt.show()
+
+# calculate basic reproduction number
+print('r_0: {}'.format(brn(trans_r,recov_r)))

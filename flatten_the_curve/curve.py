@@ -31,9 +31,12 @@ DV:
 """
 
 
+
+from datetime import datetime,date,timedelta 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
+
 
 def trans_r():
     """transmission rate. Flatten The Curve!
@@ -87,11 +90,10 @@ def sir_model(S,I,R,trans_r,recov_r,t_max,t_num=None):
 
 
     """
-
     if(t_num == None):
         t_num = t_max
 
-    t = np.linspace(0,t_max,t_num)
+    t = np.linspace(0,t_max,t_num,endpoint=False)
     r = solve_ivp(rhs,(0,t_max),[S,I,R],method='RK45',t_eval=t,args=(trans_r,recov_r))
 
     x = r.t.tolist()
@@ -118,6 +120,9 @@ def brn(trans_r,recov_r):
 
 # calculate the transmission rate and recovery rate
 trans_r = trans_r()
+trans_r_l = 0.85
+trans_r_m = 1.15
+trans_r_h = 1.30
 recov_r = recov_r()
 
 
@@ -131,13 +136,44 @@ R = 0
 
 # calculate x and y
 x,y = sir_model(S,I,R,trans_r,recov_r,t_max)
+x,y_l = sir_model(S,I,R,trans_r_l,recov_r,t_max)
+x,y_m = sir_model(S,I,R,trans_r_m,recov_r,t_max)
+x,y_h = sir_model(S,I,R,trans_r_h,recov_r,t_max)
+
+# turn x into date
+start_date = date(2020,2,20) #datetime.datetime('2020','02','20')
+dates = []
+for i in x:
+    date = start_date + timedelta(i)
+    dates.append(date)
+
 
 # plot x and y
-plt.plot(x,y[0],label='S')
-plt.plot(x,y[1],label='I')
-plt.plot(x,y[2],label='R')
+lmh = plt.figure(1)
+plt.plot(dates,y_l[1],label='I low (trans_r {})'.format(trans_r_l))
+plt.plot(dates,y_m[1],label='I medium (trans_r {})'.format(trans_r_m))
+plt.plot(dates,y_h[1],label='I high (trans_r {})'.format(trans_r_h))
+plt.xticks(rotation=45)
 plt.legend(loc='upper right')
+plt.title('% infected LMH')
+plt.ylabel('% infected')
+plt.ylim(0,1)
+
+sir = plt.figure(2)
+plt.plot(dates,y[0],label='S')
+plt.plot(dates,y[1],label='I')
+plt.plot(dates,y[2],label='R')
+plt.xticks(rotation=45)
+plt.legend(loc='upper right')
+plt.title('S, I and R @ trans_r {}'.format(trans_r))
+plt.ylabel('% infected')
+plt.ylim(0,1)
 plt.show()
 
 # calculate basic reproduction number
 print('r_0: {}'.format(brn(trans_r,recov_r))) # about 3.5 IRL?
+
+# todo:
+
+# data ontsluiten om trans_r te berekenen:
+# https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_daily_reports/

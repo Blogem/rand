@@ -36,7 +36,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 def trans_r():
-    """transmission rate
+    """transmission rate. Flatten The Curve!
     
     Aantal mensen dat een nieuw persoon infect, geloof ik.
     stond iets in de krant
@@ -51,7 +51,7 @@ def recov_r():
         vaccinated
     """
     #return 0.23
-    return 0.23
+    return 0.33
 
 def rhs(s,v,trans_r,recov_r):
     """RHS equations for SIR model with trans_r and recov_r
@@ -130,7 +130,7 @@ I = 0.02
 R = 0
 
 # calculate x and y
-x,y = sir_model(S,I,R,trans_r,recov_r,t_max,100)
+x,y = sir_model(S,I,R,trans_r,recov_r,t_max)
 
 # plot x and y
 plt.plot(x,y[0],label='S')
@@ -140,4 +140,4 @@ plt.legend(loc='upper right')
 plt.show()
 
 # calculate basic reproduction number
-print('r_0: {}'.format(brn(trans_r,recov_r)))
+print('r_0: {}'.format(brn(trans_r,recov_r))) # about 3.5 IRL?

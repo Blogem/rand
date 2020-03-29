@@ -1,15 +1,18 @@
 import csv
 import sqlite3
+import pymysql
 import os
 import datetime
+import argparse
 
 
-def create_db_and_table(db_name=':memory:',create_q=None):
+def create_db_and_table(host,user,passwd,db,create_q=None):
     """
     Create database and table
     """
     
-    conn = sqlite3.connect(db_name)
+    #conn = sqlite3.connect(db_name)
+    conn = pymysql.connect(host,user,passwd,db)
     c = conn.cursor()
 
     c.execute(create_q)
@@ -33,11 +36,16 @@ def csv_to_table(dir,file,c,insert_q):
         reader = csv.reader(read_obj)
         # skip first row with headers
         next(reader)
-        data = list(map(tuple, reader))
+        #data = list(map(tuple, reader))
 
-    for line in data:
-        c.execute(insert_q.format(filename,reportdate),line)
-        conn.commit()
+        print('Dumping {}'.format(filename))
+        for line in reader:
+            line.insert(0,reportdate)
+            line.insert(0,filename)
+            line = [None if v is '' else v for v in line]
+
+            c.execute(insert_q,line)
+            conn.commit()
 
 def read_covid(dir):
     """
@@ -56,27 +64,42 @@ def read_covid(dir):
             cnt += 1
             # create correct query for schema of the file (ugly)
             if(file.startswith('01-') or file.startswith('02-')):
+                # insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
+                #                 death,recovered) VALUES("{}","{}",?,?,?,?,?,?)'''
                 insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
-                                death,recovered) VALUES("{}","{}",?,?,?,?,?,?)'''
+                                death,recovered) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'''
             elif(file.startswith('03-0') or
                     file.startswith('03-1') or
                     file.startswith('03-20') or
                     file.startswith('03-21')):
                 insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
-                    death,recovered,lat,long) VALUES("{}","{}",?,?,?,?,?,?,?,?)'''
+                    death,recovered,lat,lon) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
             else:
-                insert_q = 'INSERT INTO covid VALUES("{}","{}",?,?,?,?,?,?,?,?,?,?,?,?)'
+                insert_q = 'INSERT INTO covid VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
 
             csv_to_table(dir,file,c,insert_q)
     return cnt
 
-# create DB + table
-db_name = 'covid_data.db'
-create_q = '''CREATE TABLE IF NOT EXISTS covid
-                (file text,report_date date,fips integer,city text,province_state text,country_region text,last_update datetime,
-                lat numeric,long numeric,confirmed int,death int,recovered int,active int,combined_key text)'''
-c,conn = create_db_and_table(db_name,create_q=create_q)
 
+
+parser = argparse.ArgumentParser()
+
+# Required positional arguments
+parser.add_argument("host", help="MySQL host")
+parser.add_argument("user", help="MySQL user")
+parser.add_argument("passwd", help="MySQL passwd")
+args = parser.parse_args()
+
+# connect to DB and create table
+host = args.host
+user = args.user
+passwd = args.passwd
+db = 'covid_data'
+create_q = '''CREATE TABLE IF NOT EXISTS covid
+                (file varchar(255),report_date date,fips int,city varchar(255),province_state varchar(255)
+                ,country_region varchar(255),last_update varchar(255),lat decimal(10,8),lon decimal(11,8),confirmed int
+                ,death int,recovered int,active int,combined_key varchar(255))'''
+c,conn = create_db_and_table(host,user,passwd,db,create_q=create_q)
 
 # read all CSVs to db
 dir = 'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/'

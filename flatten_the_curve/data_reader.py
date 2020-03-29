@@ -14,3 +14,5 @@ print(l)
 
 # c.execute('PRAGMA table_info("covid")')
 # print(c.fetchall())
+
+conn.close()

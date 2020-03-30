@@ -42,7 +42,7 @@ def csv_to_table(dir,file,c,insert_q):
         for line in reader:
             line.insert(0,reportdate)
             line.insert(0,filename)
-            line = [None if v is '' else v for v in line]
+            line = [None if v == '' else v for v in line]
 
             c.execute(insert_q,line)
             conn.commit()

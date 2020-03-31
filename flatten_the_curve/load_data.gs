@@ -2,8 +2,17 @@ function load_all() {
   load_nl()
   load_it()
   load_wereld()
+  
+  set_last_update('Main','a2')
 }
 
+function set_last_update(sheetname,cell_position) {
+  var spreadsheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/.../');
+  var sheet = spreadsheet.getSheetByName(sheetname);
+  var cell = sheet.getRange(cell_position);
+  cell.setValue('Laatst bijgewerkt: '+new Date());
+}
+  
 function load_nl() {
   Logger.log('Fetching NL')
   
@@ -112,18 +121,17 @@ function load_wereld() {
 
 function fetch_mysql_data(query,sheetname) { 
   
-  var conn = Jdbc.getConnection('jdbc:mysql://185.107.213.176:3306/covid_data', 'covid', 'BV71n!xB^gxhklC5##'); // Change it as per your database credentials
+  var conn = Jdbc.getConnection('jdbc:mysql://ip:3306/database', 'user', 'password'); 
 
   var stmt = conn.createStatement();
   var start = new Date(); // Get script starting time
   
-  var rs = stmt.executeQuery(query); // It sets the limit of the maximum nuber of rows in a ResultSet object
+  stmt.setQueryTimeout(30);
+  var rs = stmt.executeQuery(query);
 
-  var spreadsheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1Rn18neRaYqxt3a_BU1RwB_RzZ6_vakOk20nzK-r9rnA/');
-  //var doc = SpreadsheetApp.getActiveSpreadsheet(); // Returns the currently active spreadsheet
+  var spreadsheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/.../');
   var sheet = spreadsheet.getSheetByName(sheetname);
   sheet.clear();
-  //SpreadsheetApp.setActiveSheet(doc.getSheets()[sheetnum]);
   var cell = sheet.getRange('a1');
   var row = 0;
   var getCount = rs.getMetaData().getColumnCount(); // Mysql table column name count.

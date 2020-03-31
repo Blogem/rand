@@ -167,7 +167,7 @@ LEFT JOIN covid_hosp_nl_prep cp \
     ON ch.Datum = cp.Datum \
  WHERE c.country_region = "Netherlands" \
    AND (c.province_state IS NULL OR c.province_state = "Netherlands" ) \
-  ORDER BY ch.Datum'
+  ORDER BY c.report_date'
     
   var sheetname = 'Data hosp NL'
   

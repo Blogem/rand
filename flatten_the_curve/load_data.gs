@@ -3,6 +3,7 @@ function load_all() {
   load_it()
   load_cn()
   load_wereld()
+  load_hosp_nl()
   
   set_last_update('Main','a2')
 }
@@ -155,9 +156,25 @@ function load_wereld() {
   Logger.log('Fetched wereld')
 }
 
+function load_hosp_nl() {
+  Logger.log('Fetching hosp NL')
+  
+  var query = 'SELECT c.Datum,c.Aantal,cp.Nieuw,cp.Groeifactor \
+  FROM `covid_hosp_nl` c \
+  JOIN covid_hosp_nl_prep cp \
+    ON c.Datum = cp.Datum \
+  ORDER BY c.Datum'
+    
+  var sheetname = 'Data hosp NL'
+  
+  fetch_mysql_data(query,sheetname)
+  
+  Logger.log('Fetched hosp NL')
+}
+
 function fetch_mysql_data(query,sheetname) { 
   
-  var conn = Jdbc.getConnection('jdbc:mysql://ip:3306/database', 'user', 'password'); 
+  var conn = Jdbc.getConnection('jdbc:mysql://ip:3306/db', 'user', 'passwd'); 
 
   var stmt = conn.createStatement();
   var start = new Date(); // Get script starting time

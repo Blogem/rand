@@ -5,22 +5,26 @@ import os
 import datetime
 import argparse
 
+def connect_db(host,user,passwd,db):
+    """
+    Connect to mysql db
+    """
+    conn = pymysql.connect(host,user,passwd,db)
+    c = conn.cursor
 
-def create_db_and_table(host,user,passwd,db,create_q=None):
+    return c,conn
+
+def create_table(c,conn,create_q=None):
     """
     Create database and table
     """
-    
-    #conn = sqlite3.connect(db_name)
-    conn = pymysql.connect(host,user,passwd,db)
     c = conn.cursor()
-
     c.execute(create_q)
 
     conn.commit()
     return c,conn
 
-def csv_to_table(dir,file,c,insert_q):
+def covidcsv_to_table(dir,file,c,insert_q):
     """
     Read CSV to table
     """
@@ -77,8 +81,32 @@ def read_covid(dir):
             else:
                 insert_q = 'INSERT INTO covid VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
 
-            csv_to_table(dir,file,c,insert_q)
+            covidcsv_to_table(dir,file,c,insert_q)
     return cnt
+
+def read_covid_hosp_nl(file):
+    """
+    Read rivm_corona_in_nl_hosp.csv file to db
+    """
+    # full load, so delete everything first
+    c.execute('DELETE FROM covid_hosp_nl')
+    insert_q = '''INSERT INTO covid_hosp_nl(Datum,Aantal) VALUES(%s,%s)'''
+
+    # write data to table
+    filename = os.path.basename(file)
+    with open(file,'rt') as read_obj:
+        reader = csv.reader(read_obj)
+        # skip first row with headers
+        next(reader)
+
+        print('Dumping {}'.format(filename))
+        for line in reader:
+            line = [None if v == '' else v for v in line]
+
+            c.execute(insert_q,line)
+        conn.commit()
+    
+    return True
 
 
 
@@ -88,22 +116,35 @@ parser = argparse.ArgumentParser()
 parser.add_argument("host", help="MySQL host")
 parser.add_argument("user", help="MySQL user")
 parser.add_argument("passwd", help="MySQL passwd")
-parser.add_argument("dir", help="COVID data dir")
+parser.add_argument("dir", help="COVID global data dir")
+parser.add_argument("file_hosp_nl", help="COVID hosp NL data file")
 args = parser.parse_args()
 
-# connect to DB and create table
+# connect to DB
 host = args.host
 user = args.user
 passwd = args.passwd
 db = 'covid_data'
+c,conn = connect_db(host,user,passwd,db)
+
+# create table for Covid global
 create_q = '''CREATE TABLE IF NOT EXISTS covid
                 (file varchar(255),report_date date,fips int,city varchar(255),province_state varchar(255)
                 ,country_region varchar(255),last_update varchar(255),lat decimal(10,8),lon decimal(11,8),confirmed int
                 ,death int,recovered int,active int,combined_key varchar(255))'''
-c,conn = create_db_and_table(host,user,passwd,db,create_q=create_q)
+c,conn = create_table(c,conn,create_q=create_q)
+
+# create table for Covid hosp NL
+db = 'covid_hosp_nl'
+create_q = '''CREATE TABLE IF NOT EXISTS covid_hosp_nl
+                (Datum date,Aantal int)'''
+c,conn = create_table(c,conn,create_q=create_q)
 
 # read all CSVs to db
-cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
-print('Inserted {} files'.format(cnt))
+#cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
+#print('Inserted {} files'.format(cnt))
+
+read_covid_hosp_nl(args.file_hosp_nl) #'D:/code/CoronaWatchNL/data/rivm_corona_in_nl_hosp.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
+print('Inserted {}'.format(args.file_hosp_nl))
 
 conn.close()

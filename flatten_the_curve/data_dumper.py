@@ -141,8 +141,8 @@ create_q = '''CREATE TABLE IF NOT EXISTS covid_hosp_nl
 c,conn = create_table(c,conn,create_q=create_q)
 
 # read all CSVs to db
-#cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
-#print('Inserted {} files'.format(cnt))
+cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
+print('Inserted {} files'.format(cnt))
 
 read_covid_hosp_nl(args.file_hosp_nl) #'D:/code/CoronaWatchNL/data/rivm_corona_in_nl_hosp.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
 print('Inserted {}'.format(args.file_hosp_nl))

@@ -88,6 +88,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("host", help="MySQL host")
 parser.add_argument("user", help="MySQL user")
 parser.add_argument("passwd", help="MySQL passwd")
+parser.add_argument("dir", help="COVID data dir")
 args = parser.parse_args()
 
 # connect to DB and create table
@@ -102,8 +103,7 @@ create_q = '''CREATE TABLE IF NOT EXISTS covid
 c,conn = create_db_and_table(host,user,passwd,db,create_q=create_q)
 
 # read all CSVs to db
-dir = 'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
-cnt = read_covid(dir)
+cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
 print('Inserted {} files'.format(cnt))
 
 conn.close()

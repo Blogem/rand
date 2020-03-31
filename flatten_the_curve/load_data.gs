@@ -1,6 +1,7 @@
 function load_all() {
   load_nl()
   load_it()
+  load_cn()
   load_wereld()
   
   set_last_update('Main','a2')
@@ -82,6 +83,41 @@ function load_it() {
   fetch_mysql_data(query,sheetname)
   
   Logger.log('Fetched IT')
+}
+
+function load_cn() {
+  Logger.log('Fetching CN')
+  
+  var query = 'SELECT \
+                c.file \
+               ,c.report_date \
+               ,c.fips \
+               ,c.city \
+               ,c.province_state \
+               ,c.country_region \
+               ,c.last_update \
+               ,c.lat \
+               ,c.lon \
+               ,c.confirmed \
+               ,c.death \
+               ,c.recovered \
+               ,c.active \
+               ,c.combined_key \
+               ,c.confirmed - cl.confirmed AS confirmed_new \
+               ,c.death - cl.death AS death_new \
+               ,c.death / c.confirmed AS death_rate \
+               ,(c.confirmed - cl.confirmed) / (cl.confirmed - cll.confirmed) AS growth_rate \
+               FROM covid_china c \
+               LEFT JOIN covid_china cl \
+                 ON cl.report_date = DATE_ADD(c.report_date, INTERVAL -1 DAY) \
+               LEFT JOIN covid_china cll \
+                 ON cll.report_date = DATE_ADD(c.report_date, INTERVAL -2 DAY) \
+               ORDER BY c.report_date ASC'
+  var sheetname = 'Data CN'
+  
+  fetch_mysql_data(query,sheetname)
+  
+  Logger.log('Fetched CN')
 }
 
 function load_wereld() {

@@ -159,11 +159,15 @@ function load_wereld() {
 function load_hosp_nl() {
   Logger.log('Fetching hosp NL')
   
-  var query = 'SELECT c.Datum,c.Aantal,cp.Nieuw,cp.Groeifactor \
-  FROM `covid_hosp_nl` c \
-  JOIN covid_hosp_nl_prep cp \
-    ON c.Datum = cp.Datum \
-  ORDER BY c.Datum'
+  var query = 'SELECT c.report_date AS Datum,ch.Aantal,cp.Nieuw,cp.Groeifactor \
+  FROM covid c \
+LEFT JOIN `covid_hosp_nl` ch \
+    ON c.report_date = ch.Datum \
+LEFT JOIN covid_hosp_nl_prep cp \
+    ON ch.Datum = cp.Datum \
+ WHERE c.country_region = "Netherlands" \
+   AND (c.province_state IS NULL OR c.province_state = "Netherlands" ) \
+  ORDER BY ch.Datum'
     
   var sheetname = 'Data hosp NL'
   

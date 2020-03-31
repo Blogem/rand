@@ -45,7 +45,7 @@ def csv_to_table(dir,file,c,insert_q):
             line = [None if v == '' else v for v in line]
 
             c.execute(insert_q,line)
-            conn.commit()
+        conn.commit()
 
 def read_covid(dir):
     """

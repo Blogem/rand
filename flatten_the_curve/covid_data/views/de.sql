@@ -21,7 +21,7 @@ select
 from
     (
         `covid` `c`
-        join `covid_prep_it` `cp` on((`c`.`report_date` = `cp`.`report_date`))
+        join `covid_prep_de` `cp` on((`c`.`report_date` = `cp`.`report_date`))
     )
 where
     (

@@ -42,8 +42,8 @@ from scipy.integrate import solve_ivp
 def trans_r():
     """transmission rate. Flatten The Curve!
     
-    Aantal mensen dat een nieuw persoon infect, geloof ik.
-    stond iets in de krant
+    Aantal mensen dat een nieuw persoon infect, wordt beinvloed door maatregelen
+    besmettingskans per contact * aantal contacten (N) per tijdseenheid
     """
     #return 3.2
     return 1.15
@@ -53,6 +53,8 @@ def recov_r():
         recovered
         dead
         vaccinated
+    
+    1/infectieduur (D)
     """
     #return 0.23
     return 0.33

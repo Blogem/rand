@@ -83,10 +83,11 @@ def write_json_to_csv(data,dir):
             for l in lines:
                 writer.writerow(l)
 
-# download jsons
-data = download_json(NICE_URLS)
+if __name__ == '__main__':
+    # download jsons
+    data = download_json(NICE_URLS)
 
-# write jsons to csv
-csv_dir = 'raw_data/nice/csv/'
-Path(csv_dir).mkdir(parents=True, exist_ok=True)
-write_json_to_csv(data, csv_dir)
+    # write jsons to csv
+    csv_dir = 'raw_data/nice/csv/'
+    Path(csv_dir).mkdir(parents=True, exist_ok=True)
+    write_json_to_csv(data, csv_dir)

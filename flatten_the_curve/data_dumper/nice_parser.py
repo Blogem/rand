@@ -88,6 +88,6 @@ if __name__ == '__main__':
     data = download_json(NICE_URLS)
 
     # write jsons to csv
-    csv_dir = 'raw_data/nice/csv/'
+    csv_dir = 'raw_data/nice/'
     Path(csv_dir).mkdir(parents=True, exist_ok=True)
     write_json_to_csv(data, csv_dir)

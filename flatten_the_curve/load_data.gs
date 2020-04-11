@@ -51,6 +51,24 @@ LEFT JOIN covid_hosp_nl_prep cp \
   Logger.log('Fetched hosp NL')
 }
 
+function load_ic_nl() {
+  Logger.log('Fetching IC NL')
+  
+  var query = 'SELECT c.report_date AS Datum,cp.CurrentTotal AS HuidigAantal,cp.Nieuw,cp.Groeifactor \
+  FROM covid c \
+LEFT JOIN covid_ic_nl_prep cp \
+    ON c.report_date = cp.date \
+ WHERE c.country_region = "Netherlands" \
+   AND (c.province_state IS NULL OR c.province_state = "Netherlands" ) \
+  ORDER BY c.report_date'
+  
+  var sheetname = 'Data IC NL'
+  
+  fetch_mysql_data(query,sheetname)
+  
+  Logger.log('Fetched IC NL')
+}
+
 function fetch_mysql_data(query,sheetname) { 
   
   var conn = Jdbc.getConnection('jdbc:mysql://ip:3306/db', 'user', 'passwd');

@@ -1,0 +1,9 @@
+CREATE TABLE `covid_ic_nl` (
+  `date` date DEFAULT NULL,
+  `newIntake` int(11) DEFAULT NULL,
+  `intakeCount` int(11) DEFAULT NULL,
+  `intakeCumulative` int(11) DEFAULT NULL,
+  `icCount` int(11) DEFAULT NULL,
+  `diedCumulative` int(11) DEFAULT NULL,
+  `survivedCumulative` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

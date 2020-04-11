@@ -108,6 +108,31 @@ def read_covid_hosp_nl(file):
     
     return True
 
+def read_covid_ic_nl(file):
+    """
+    Read nice_ic_by_day.csv file to db
+    """
+    # full load, so delete everything first
+    c.execute('DELETE FROM covid_ic_nl')
+    insert_q = '''INSERT INTO covid_ic_nl(date, newIntake, intakeCount, intakeCumulative,
+                    icCount, diedCumulative, survivedCumulative) VALUES(%s,%s,%s,%s,%s,%s,%s)'''
+
+    # write data to table
+    filename = os.path.basename(file)
+    with open(file,'rt') as read_obj:
+        reader = csv.reader(read_obj)
+        # skip first row with headers
+        next(reader)
+
+        print('Dumping {}'.format(filename))
+        for line in reader:
+            line = [None if v == '' else v for v in line]
+            print(line)
+
+            c.execute(insert_q,line)
+        conn.commit()
+    
+    return True
 
 
 parser = argparse.ArgumentParser()
@@ -118,6 +143,7 @@ parser.add_argument("user", help="MySQL user")
 parser.add_argument("passwd", help="MySQL passwd")
 parser.add_argument("dir", help="COVID global data dir")
 parser.add_argument("file_hosp_nl", help="COVID hosp NL data file")
+parser.add_argument("file_ic_nl", help="COVID IC NL data file")
 args = parser.parse_args()
 
 # connect to DB
@@ -135,10 +161,16 @@ create_q = '''CREATE TABLE IF NOT EXISTS covid
 c,conn = create_table(c,conn,create_q=create_q)
 
 # create table for Covid hosp NL
-db = 'covid_hosp_nl'
 create_q = '''CREATE TABLE IF NOT EXISTS covid_hosp_nl
                 (Datum date,Aantal int)'''
 c,conn = create_table(c,conn,create_q=create_q)
+
+# create table for NICE data
+create_q = '''CREATE TABLE IF NOT EXISTS covid_ic_nl
+                (date date, newIntake int, intakeCount int, intakeCumulative int, icCount int,
+                 diedCumulative int, survivedCumulative int)'''
+c,conn = create_table(c,conn,create_q=create_q)
+
 
 # read all CSVs to db
 cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
@@ -146,5 +178,8 @@ print('Inserted {} files'.format(cnt))
 
 read_covid_hosp_nl(args.file_hosp_nl) #'D:/code/CoronaWatchNL/data/rivm_corona_in_nl_hosp.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
 print('Inserted {}'.format(args.file_hosp_nl))
+
+read_covid_ic_nl(args.file_ic_nl) #'D:/code/CoronaWatchNL/data/nice_ic_by_day.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
+print('Inserted {}'.format(args.file_ic_nl))
 
 conn.close()

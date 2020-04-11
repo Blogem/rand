@@ -127,7 +127,6 @@ def read_covid_ic_nl(file):
         print('Dumping {}'.format(filename))
         for line in reader:
             line = [None if v == '' else v for v in line]
-            print(line)
 
             c.execute(insert_q,line)
         conn.commit()

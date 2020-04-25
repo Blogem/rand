@@ -114,8 +114,8 @@ def read_covid_ic_nl(file):
     """
     # full load, so delete everything first
     c.execute('DELETE FROM covid_ic_nl')
-    insert_q = '''INSERT INTO covid_ic_nl(date, newIntake, intakeCount, intakeCumulative,
-                    icCount, diedCumulative, survivedCumulative) VALUES(%s,%s,%s,%s,%s,%s,%s)'''
+    insert_q = '''INSERT INTO covid_ic_nl(date, icCount, newIntake, intakeCount, intakeCumulative,
+                    survivedCumulative, diedCumulative) VALUES(%s,%s,%s,%s,%s,%s,%s)'''
 
     # write data to table
     filename = os.path.basename(file)

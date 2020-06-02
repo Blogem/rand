@@ -103,8 +103,8 @@ def read_covid(dir):
                     file.startswith('05-26') or
                     file.startswith('05-27') or
                     file.startswith('05-28')):
-                insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,lat,lon,confirmed,
-                    death,recovered,active,combined_key) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
+                insert_q = '''INSERT INTO covid(file,report_date,fips,city,province_state,country_region,last_update,
+                    lat,lon,confirmed,death,recovered,active,combined_key) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
 
             else:
                 insert_q = 'INSERT INTO covid VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'

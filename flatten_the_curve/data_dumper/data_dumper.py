@@ -66,20 +66,48 @@ def read_covid(dir):
     for file in os.listdir(dir):
         if file.endswith('.csv'):
             cnt += 1
+
             # create correct query for schema of the file (ugly)
             if(file.startswith('01-') or file.startswith('02-')):
                 # insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
                 #                 death,recovered) VALUES("{}","{}",?,?,?,?,?,?)'''
                 insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
                                 death,recovered) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'''
+ 
             elif(file.startswith('03-0') or
                     file.startswith('03-1') or
                     file.startswith('03-20') or
                     file.startswith('03-21')):
                 insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,confirmed,
                     death,recovered,lat,lon) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
-            else:
-                insert_q = 'INSERT INTO covid VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+
+			elif(file.startswith('03-22') or
+					file.startswith('03-23') or
+					file.startswith('03-24') or
+					file.startswith('03-25') or
+					file.startswith('03-26') or
+					file.startswith('03-27') or
+					file.startswith('03-28') or
+					file.startswith('03-29') or
+					file.startswith('03-30') or
+					file.startswith('03-31') or
+					file.startswith('04-') or
+					file.startswith('05-0') or
+					file.startswith('05-1') or
+					file.startswith('05-20') or
+					file.startswith('05-21') or
+					file.startswith('05-22') or
+					file.startswith('05-23') or
+					file.startswith('05-24') or
+					file.startswith('05-25') or
+					file.startswith('05-26') or
+					file.startswith('05-27') or
+					file.startswith('05-28')):
+				insert_q = '''INSERT INTO covid(file,report_date,province_state,country_region,last_update,lat,lon,confirmed,
+                    death,recovered,active,combined_key) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
+
+			else:
+                insert_q = 'INSERT INTO covid VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
 
             covidcsv_to_table(dir,file,c,insert_q)
     return cnt

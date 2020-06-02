@@ -85,34 +85,35 @@ def write_json_to_csv(data,dir):
 
         print('Writing json to {}'.format(file))
 
-        try:
-            with open(file, 'w', newline='') as out_f:
-                if isinstance(json, dict):
-                    # single object
-                    # get header
-                    header = list(json.keys())
+        #try:
+        with open(file, 'w', newline='') as out_f:
+            if isinstance(json, dict):
+                # single object
+                # get header
+                header = list(json.keys())
 
-                    # put data in list so it will fit in the DictWriter
-                    lines = [json]
-                else:
-                    # single array
-                    # get header
-                    l = json[0]
-                    header = []
-                    for k,v in l.items():
-                        header.append(k)
+                # put data in list so it will fit in the DictWriter
+                lines = [json]
+            else:
+                # single array
+                # get header
+                l = json[0]
+                header = []
+                print(l)
+                for k,v in l.items():
+                    header.append(k)
 
-                    lines = json
+                lines = json
 
-                # write the header
-                writer = csv.DictWriter(out_f,fieldnames=header)
-                writer.writeheader()
+            # write the header
+            writer = csv.DictWriter(out_f,fieldnames=header)
+            writer.writeheader()
 
-                # write the data
-                for l in lines:
-                    writer.writerow(l)
-        except Exception as e:
-            sys.exit('ERROR: could not write json to csv {} ({})'.format(file,e))
+            # write the data
+            for l in lines:
+                writer.writerow(l)
+        #except Exception as e:
+        #    sys.exit('ERROR: could not write json to csv {} ({})'.format(file,e))
 
 
 def merge_csvs(merge_list,dir,on,choose,dtype=int):

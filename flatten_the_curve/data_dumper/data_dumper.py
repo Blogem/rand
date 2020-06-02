@@ -115,7 +115,7 @@ def read_covid_ic_nl(file):
     # full load, so delete everything first
     c.execute('DELETE FROM covid_ic_nl')
     insert_q = '''INSERT INTO covid_ic_nl(date, icCount, newIntake, intakeCount, intakeCumulative,
-                    survivedCumulative, diedCumulative) VALUES(%s,%s,%s,%s,%s,%s,%s)'''
+                    survivedCumulative, diedCumulative, newSuspected, dischargedTotal) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
 
     # write data to table
     filename = os.path.basename(file)
@@ -127,7 +127,6 @@ def read_covid_ic_nl(file):
         print('Dumping {}'.format(filename))
         for line in reader:
             line = [None if v == '' else v for v in line]
-
             c.execute(insert_q,line)
         conn.commit()
     

@@ -4,6 +4,7 @@ import pymysql
 import os
 import datetime
 import argparse
+import pandas
 
 def connect_db(host,user,passwd,db):
     """
@@ -112,28 +113,38 @@ def read_covid(dir):
             covidcsv_to_table(dir,file,c,insert_q)
     return cnt
 
-def read_covid_hosp_nl(file):
+def read_covid_national_nl(file):
     """
-    Read rivm_corona_in_nl_hosp.csv file to db
+    Read RIVM_NL_national.csv file to db
     """
+
     # full load, so delete everything first
     c.execute('DELETE FROM covid_hosp_nl')
     insert_q = '''INSERT INTO covid_hosp_nl(Datum,Aantal) VALUES(%s,%s)'''
 
+    # read data to pandas df and pivot to keep cumulative values per date
+    df = pandas.read_csv(file)
+    df = df.pivot(index='Datum',columns='Type',values='AantalCumulatief')
+
     # write data to table
     filename = os.path.basename(file)
-    with open(file,'rt') as read_obj:
-        reader = csv.reader(read_obj)
-        # skip first row with headers
-        next(reader)
+    print('Dumping {}'.format(filename))
+    for row in df.iterrows():
+        date = row[0]
+        total_hosp = row[1]['Ziekenhuisopname']
 
-        print('Dumping {}'.format(filename))
-        for line in reader:
-            line = [None if v == '' else v for v in line]
+        total_hosp = int(total_hosp.astype(int))
 
-            c.execute(insert_q,line)
-        conn.commit()
-    
+        # int() converts nan to -2147483648
+        if total_hosp == -2147483648:
+            total_hosp = None
+        
+        values = (date,total_hosp)
+        print(values)
+        c.execute(insert_q,values)
+
+    conn.commit()
+
     return True
 
 def read_covid_ic_nl(file):
@@ -202,10 +213,12 @@ c,conn = create_table(c,conn,create_q=create_q)
 cnt = read_covid(args.dir) #'D:/code/COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/' # https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports
 print('Inserted {} files'.format(cnt))
 
-read_covid_hosp_nl(args.file_hosp_nl) #'D:/code/CoronaWatchNL/data/rivm_corona_in_nl_hosp.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
+read_covid_national_nl(args.file_hosp_nl) # /d/code/CoronaWatchNL/data-geo/data-national/RIVM_NL_national.csv
 print('Inserted {}'.format(args.file_hosp_nl))
 
 read_covid_ic_nl(args.file_ic_nl) #'D:/code/CoronaWatchNL/data/nice_ic_by_day.csv' # https://github.com/J535D165/CoronaWatchNL/tree/master/data
 print('Inserted {}'.format(args.file_ic_nl))
+
+read_covid_national_nl(args.file_hosp_nl)
 
 conn.close()

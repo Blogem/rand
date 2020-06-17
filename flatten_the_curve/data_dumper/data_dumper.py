@@ -132,7 +132,6 @@ def read_covid_national_nl(file):
     for row in df.iterrows():
         date = row[0]
         total_hosp = row[1]['Ziekenhuisopname']
-
         total_hosp = int(total_hosp.astype(int))
 
         # int() converts nan to -2147483648

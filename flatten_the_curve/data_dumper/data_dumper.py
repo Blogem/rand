@@ -134,8 +134,8 @@ def read_covid_national_nl(file):
         total_hosp = row[1]['Ziekenhuisopname']
         total_hosp = int(total_hosp.astype(int))
 
-        # int() converts nan to -2147483648
-        if total_hosp == -2147483648:
+        # int() converts nan to -2147483648 or -9223372036854775808
+        if total_hosp < 0:
             total_hosp = None
         
         values = (date,total_hosp)

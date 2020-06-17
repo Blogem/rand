@@ -139,7 +139,6 @@ def read_covid_national_nl(file):
             total_hosp = None
         
         values = (date,total_hosp)
-        print(values)
         c.execute(insert_q,values)
 
     conn.commit()
